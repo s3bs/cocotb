@@ -1,0 +1,15 @@
+ARG version_modelsim="16.0" 
+ARG build_modelsim="211" 
+ARG bin_modelsim="ModelSimSetup-${version_modelsim}.0.${build_modelsim}-linux.run"
+ARG url_donwload_modelsim="http://download.altera.com/akdlm/software/acdsinst/${version_modelsim}/${build_modelsim}/ib_installers/${bin_modelsim}"
+ARG path_install_modelsim="/eda/intelFPGA/${version_modelsim}" 
+#RUN yum update -y && yum install -y glib.i686 libX*.i686 ncurses-libs.i686
+#RUN yum groupinstall -y "X Window System"
+RUN wget --spider -nv --timeout 10 -t 1 ${url_donwload_modelsim} 
+RUN set -x; cd /tmp; wget -c -nv ${url_donwload_modelsim}; chmod a+x ${bin_modelsim}; sync; ./${bin_modelsim} --help; ./${bin_modelsim} --mode unattended --installdir ${path_install_modelsim} --unattendedmodeui none; rm /tmp/${bin_modelsim};
+## for bug in ver.16.0 
+RUN cd ${path_install_modelsim}/modelsim_ase; ln -s linux linux_rh60; tree .
+## Test bin 
+RUN set -x; cd /; find / -name "vsim"; ${path_install_modelsim}/modelsim_ase/linuxaloem/vsim -c -version
+## set modelsim's path to PATH 
+RUN echo "export PATH=${PATH}:/eda/intelFPGA/16.0/modelsim_ase/bin; echo 'set vsim path to PATH'" >> /etc/profile 
