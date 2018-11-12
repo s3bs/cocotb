@@ -38,7 +38,7 @@ Also used a regression test of cocotb capabilities
 
 import cocotb
 from cocotb.triggers import (Timer, Join, RisingEdge, FallingEdge, Edge,
-                             ReadOnly, ReadWrite, ClockCycles)
+                             ReadOnly, ReadWrite, ClockCycles, NullTrigger, NextTimeStep)
 from cocotb.clock import Clock
 from cocotb.result import ReturnValue, TestFailure, TestError, TestSuccess
 from cocotb.utils import get_sim_time
@@ -705,3 +705,15 @@ def test_coroutine_return(dut):
     if ret != 42:
         raise TestFailure("Return statement did not work")
     """))
+
+@cocotb.coroutine
+def optional_yield(signal, time=False):
+    if time:
+        yield NullTrigger()
+    signal <= 1
+
+@cocotb.test()
+def test_schedule_empty_coroutine(dut):
+    yield optional_yield(dut.clk)
+    yield NextTimeStep()
+
